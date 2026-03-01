@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>쉬운 전화</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after {
+  margin: 0; padding: 0; box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+:root {
+  --bg: #F2F4F8;
+  --bg2: #E8ECF4;
+  --white: #FFFFFF;
+  --blue: #1A6FE8;
+  --blue-dark: #1557C0;
+  --blue-light: #EAF0FD;
+  --blue-mid: #C5D8FA;
+  --green: #18B560;
+  --green-dark: #0F9048;
+  --green-light: #E6F9EE;
+  --red: #E8312A;
+  --red-light: #FDECEB;
+  --yellow: #F5A623;
+  --text: #181D27;
+  --text2: #4A5568;
+  --text3: #8A96A8;
+  --border: #DDE3EF;
+  --shadow: 0 2px 16px rgba(26,111,232,0.10);
+  --shadow-lg: 0 6px 32px rgba(26,111,232,0.16);
+  --r-xl: 28px;
+  --r-lg: 20px;
+  --r-md: 14px;
+  --r-sm: 10px;
+  --r-full: 999px;
+}
+
+html, body {
+  min-height: 100%; background: var(--bg);
+  font-family: 'Noto Sans KR', sans-serif;
+  color: var(--text); overflow-x: hidden;
+}
+
+/* ── STATUS BAR ── */
+.status-bar {
+  background: var(--white);
+  padding: 10px 20px 0;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 40;
+}
+.status-left { display: flex; align-items: center; gap: 6px; }
+.status-time {
+  font-size: 28px; font-weight: 900; color: var(--text);
+  line-height: 1;
+}
+.status-date { font-size: 13px; color: var(--text3); font-weight: 500; padding-bottom: 10px; margin-left: 4px; }
+.status-icons { display: flex; align-items: center; gap: 4px; padding-bottom: 10px; font-size: 18px; }
+
+/* ── HEADER ── */
+.page-header {
+  background: var(--white);
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 39;
+}
+.page-header h1 {
+  font-size: 26px; font-weight: 900; color: var(--text);
+  letter-spacing: -0.5px;
+}
+.page-header p { font-size: 13px; color: var(--text3); margin-top: 2px; font-weight: 500; }
+
+/* ── SCREENS ── */
+.screen { display: none; padding: 0 0 100px; }
+.screen.active { display: block; animation: fadein .22s ease; }
+@keyframes fadein { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── SECTION ── */
+.section-wrap { padding: 20px 16px 0; }
+.section-title {
+  font-size: 13px; font-weight: 700; color: var(--text3);
+  letter-spacing: 0.6px; text-transform: uppercase;
+  margin-bottom: 12px; padding-left: 2px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* ── CONTACT GRID ── */
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.c-card {
+  background: var(--white);
+  border-radius: var(--r-xl);
+  padding: 22px 14px 16px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  border: 1.5px solid transparent;
+  position: relative;
+  cursor: pointer;
+  transition: transform .14s, box-shadow .14s;
+  overflow: hidden;
+}
+.c-card::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:4px;
+  background: var(--accent, var(--blue));
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+}
+.c-card:active { transform: scale(.96); box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.c-card.is-fav { border-color: var(--blue-mid); }
+
+.fav-star {
+  position: absolute; top: 10px; right: 12px;
+  font-size: 14px;
+}
+
+.c-avatar {
+  width: 72px; height: 72px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; margin: 0 auto 10px;
+  position: relative;
+}
+.c-avatar-ring {
+  position: absolute; inset: -3px; border-radius: 50%;
+  border: 2px solid var(--accent, var(--blue));
+  opacity: .25;
+}
+.c-name { font-size: 19px; font-weight: 900; color: var(--text); margin-bottom: 2px; }
+.c-rel { font-size: 12px; color: var(--text3); font-weight: 600; margin-bottom: 4px; letter-spacing: .3px; }
+.c-phone { font-size: 11px; color: var(--text3); margin-bottom: 14px; }
+
+.c-btns { display: flex; gap: 7px; }
+.c-btn-call, .c-btn-video {
+  flex: 1; border: none; border-radius: var(--r-full);
+  padding: 11px 6px; font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  cursor: pointer; font-family: inherit; transition: filter .12s;
+}
+.c-btn-call { background: var(--green); color: #fff; box-shadow: 0 3px 12px rgba(24,181,96,.3); }
+.c-btn-call:active { filter: brightness(.88); }
+.c-btn-video { background: var(--blue); color: #fff; box-shadow: 0 3px 12px rgba(26,111,232,.28); }
+.c-btn-video:active { filter: brightness(.88); }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+  background: var(--white);
+  border-top: 1.5px solid var(--border);
+  display: flex;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  box-shadow: 0 -4px 20px rgba(0,0,0,.07);
+}
+.nav-btn {
+  flex: 1; padding: 10px 4px 12px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  cursor: pointer; transition: all .15s;
+  border: none; background: transparent; font-family: inherit;
+}
+.nav-icon {
+  width: 44px; height: 44px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; transition: all .15s;
+}
+.nav-label { font-size: 11px; font-weight: 700; color: var(--text3); letter-spacing: .2px; }
+.nav-btn.active .nav-icon { background: var(--blue-light); transform: translateY(-1px); }
+.nav-btn.active .nav-label { color: var(--blue); }
+
+/* ── DIALPAD ── */
+.dialpad-section { padding: 16px; }
+.dial-display {
+  background: var(--white);
+  border-radius: var(--r-xl);
+  padding: 20px 22px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+  min-height: 76px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.dial-num {
+  font-size: 38px; font-weight: 900; color: var(--text);
+  letter-spacing: 2px; word-break: break-all; flex: 1;
+}
+.dial-num.ph { font-size: 16px; color: var(--text3); font-weight: 500; }
+.dial-del-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; cursor: pointer; flex-shrink: 0;
+  transition: all .12s; margin-left: 12px;
+}
+.dial-del-btn:active { background: var(--border); }
+
+.pad-wrap {
+  background: var(--white);
+  border-radius: var(--r-xl);
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+.pad-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 10px; }
+.pad-key {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 18px 8px;
+  text-align: center;
+  cursor: pointer; transition: all .1s;
+  font-family: inherit;
+}
+.pad-key:active { background: var(--blue-light); border-color: var(--blue-mid); transform: scale(.94); }
+.pad-d { font-size: 30px; font-weight: 900; color: var(--text); display: block; line-height: 1; }
+.pad-l { font-size: 10px; color: var(--text3); display: block; margin-top: 3px; font-weight: 700; letter-spacing: 1.5px; }
+
+.pad-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.pad-call-big {
+  background: var(--green);
+  border: none; border-radius: var(--r-lg);
+  padding: 20px 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px; cursor: pointer;
+  box-shadow: 0 4px 18px rgba(24,181,96,.35);
+  transition: all .12s;
+}
+.pad-call-big:active { filter: brightness(.88); transform: scale(.95); }
+
+/* ── RECENTS ── */
+.recent-list { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.r-item {
+  background: var(--white);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 14px;
+  box-shadow: var(--shadow);
+  cursor: pointer; transition: all .12s;
+}
+.r-item:active { transform: scale(.98); }
+.r-avatar {
+  width: 50px; height: 50px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; flex-shrink: 0;
+}
+.r-info { flex: 1; }
+.r-name { font-size: 17px; font-weight: 900; color: var(--text); }
+.r-meta { font-size: 12px; color: var(--text3); margin-top: 3px; font-weight: 600; }
+.r-btn {
+  width: 42px; height: 42px; border-radius: 13px;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; cursor: pointer; transition: all .12s;
+}
+.r-btn:active { background: var(--green-light); border-color: var(--green); }
+
+/* ── VIDEO CALL ── */
+.video-section { padding: 16px; }
+.video-header-card {
+  background: linear-gradient(135deg, #1A6FE8 0%, #0D4BB5 100%);
+  border-radius: var(--r-xl);
+  padding: 20px;
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 14px;
+  box-shadow: 0 6px 28px rgba(26,111,232,.3);
+}
+.video-hicon { font-size: 38px; }
+.video-htitle { font-size: 20px; font-weight: 900; color: #fff; }
+.video-hsub { font-size: 13px; color: rgba(255,255,255,.7); margin-top: 3px; }
+
+.ft-item {
+  background: var(--white);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 14px;
+  box-shadow: var(--shadow);
+  cursor: pointer; transition: all .12s;
+  margin-bottom: 10px;
+}
+.ft-item:active { transform: scale(.98); }
+.ft-avatar {
+  width: 50px; height: 50px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; border: 2px solid var(--border); flex-shrink: 0;
+}
+.ft-info { flex: 1; }
+.ft-name { font-size: 17px; font-weight: 900; color: var(--text); }
+.ft-meta { font-size: 12px; color: var(--text3); margin-top: 3px; font-weight: 600; }
+.ft-call-btn {
+  background: var(--blue); color: #fff;
+  border: none; border-radius: 50px;
+  padding: 10px 16px; font-size: 13px; font-weight: 800;
+  font-family: inherit; cursor: pointer;
+  display: flex; align-items: center; gap: 4px;
+  box-shadow: 0 3px 14px rgba(26,111,232,.28);
+  transition: all .12s;
+}
+.ft-call-btn:active { filter: brightness(.88); transform: scale(.95); }
+
+/* ── ADD FORM ── */
+.add-section { padding: 16px; }
+.add-card {
+  background: var(--white);
+  border-radius: var(--r-xl);
+  padding: 22px 18px;
+  box-shadow: var(--shadow);
+}
+.form-group { margin-bottom: 16px; }
+.form-lbl { font-size: 12px; font-weight: 800; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px; }
+.form-inp {
+  width: 100%;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 15px 16px; font-size: 18px;
+  font-family: inherit; font-weight: 700; color: var(--text);
+  outline: none; transition: border-color .2s;
+}
+.form-inp:focus { border-color: var(--blue); background: var(--white); }
+.form-inp::placeholder { color: var(--text3); font-size: 14px; font-weight: 400; }
+
+.emoji-pick { display: grid; grid-template-columns: repeat(8,1fr); gap: 6px; margin-top: 8px; }
+.ep {
+  background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: var(--r-sm); padding: 7px; font-size: 21px;
+  text-align: center; cursor: pointer; transition: all .12s;
+}
+.ep.on { border-color: var(--blue); background: var(--blue-light); }
+
+.color-pick { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.cp {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 2.5px solid transparent; cursor: pointer; transition: all .12s;
+}
+.cp.on { border-color: var(--text); transform: scale(1.18); }
+
+.fav-pick { display: flex; gap: 10px; margin-top: 8px; }
+.fp {
+  flex: 1; background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: var(--r-md); padding: 14px 10px;
+  text-align: center; cursor: pointer; transition: all .12s;
+  font-family: inherit;
+}
+.fp.on { border-color: var(--blue); background: var(--blue-light); }
+.fp-icon { font-size: 24px; display: block; margin-bottom: 4px; }
+.fp-lbl { font-size: 13px; font-weight: 700; color: var(--text2); }
+
+.save-btn {
+  width: 100%; margin-top: 10px;
+  background: var(--blue);
+  border: none; border-radius: var(--r-lg);
+  padding: 18px; font-size: 18px; font-weight: 900;
+  color: #fff; font-family: inherit; cursor: pointer;
+  box-shadow: 0 5px 20px rgba(26,111,232,.35);
+  transition: all .15s; letter-spacing: -.3px;
+}
+.save-btn:active { filter: brightness(.88); transform: scale(.97); }
+
+/* ── CALLING OVERLAY ── */
+.call-ov {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: #0B1220;
+  flex-direction: column; align-items: center;
+  padding: 80px 28px 64px;
+}
+.call-ov.show { display: flex; animation: fadein .3s ease; }
+
+.call-pulse-wrap {
+  position: relative; width: 150px; height: 150px; margin-bottom: 30px;
+}
+.call-pulse {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: rgba(24,181,96,.12);
+  animation: pulse-ring 2.2s ease-out infinite;
+}
+.call-pulse:nth-child(2) { animation-delay: .75s; }
+.call-pulse:nth-child(3) { animation-delay: 1.5s; }
+@keyframes pulse-ring {
+  0% { transform:scale(.8); opacity:.8; }
+  100% { transform:scale(1.6); opacity:0; }
+}
+.call-av {
+  position: absolute; inset: 14px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 54px; border: 2px solid rgba(255,255,255,.12);
+}
+.call-name { font-size: 34px; font-weight: 900; color: #fff; margin-bottom: 6px; }
+.call-status { font-size: 15px; color: rgba(255,255,255,.55); margin-bottom: 6px; }
+.call-timer { font-size: 22px; font-weight: 900; color: var(--green); letter-spacing: 3px; min-height: 30px; }
+
+.call-ctrl { margin-top: auto; display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; width: 100%; }
+.ctrl {
+  display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer;
+}
+.ctrl-c {
+  width: 68px; height: 68px; border-radius: 50%; border: none;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; cursor: pointer; transition: all .12s; font-family: inherit;
+}
+.ctrl-c:active { transform: scale(.88); }
+.ctrl-c.end { background: var(--red); box-shadow: 0 4px 20px rgba(232,49,42,.4); }
+.ctrl-c.side { background: rgba(255,255,255,.1); border: 1.5px solid rgba(255,255,255,.15); }
+.ctrl-c.on { background: rgba(26,111,232,.3); border: 1.5px solid var(--blue); }
+.ctrl-lbl { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.5); text-align: center; }
+
+/* ── INCOMING OVERLAY ── */
+.inc-ov {
+  display: none; position: fixed; inset: 0; z-index: 300;
+  background: linear-gradient(180deg, #0B1A0F 0%, #061208 100%);
+  flex-direction: column; align-items: center;
+  padding: 80px 28px 70px;
+}
+.inc-ov.show { display: flex; animation: slideup .3s cubic-bezier(.25,.8,.25,1); }
+@keyframes slideup { from{transform:translateY(100%)} to{transform:translateY(0)} }
+
+.inc-badge {
+  background: rgba(24,181,96,.15);
+  border: 1.5px solid rgba(24,181,96,.35);
+  border-radius: var(--r-full);
+  padding: 8px 22px; font-size: 14px; font-weight: 800;
+  color: var(--green); letter-spacing: .5px; margin-bottom: 40px;
+  animation: badge-glow 1.5s infinite;
+}
+@keyframes badge-glow {
+  0%,100%{box-shadow:0 0 0 0 rgba(24,181,96,.3)} 50%{box-shadow:0 0 0 8px rgba(24,181,96,0)}
+}
+.inc-av-wrap {
+  position: relative; width: 130px; height: 130px; margin-bottom: 24px;
+}
+.inc-ring {
+  position: absolute; inset: -14px; border-radius: 50%;
+  border: 2px solid rgba(24,181,96,.2);
+  animation: pulse-ring 2s ease-out infinite;
+}
+.inc-ring:nth-child(2) { inset: -7px; animation-delay: .7s; border-color: rgba(24,181,96,.3); }
+.inc-face {
+  position: absolute; inset: 0; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 58px; border: 2px solid rgba(24,181,96,.25);
+}
+.inc-name { font-size: 36px; font-weight: 900; color: #fff; margin-bottom: 6px; }
+.inc-sub { font-size: 15px; color: rgba(255,255,255,.5); margin-bottom: 60px; }
+
+.inc-btns { display: flex; gap: 56px; margin-top: auto; }
+.inc-btn-w { text-align: center; }
+.inc-btn {
+  width: 82px; height: 82px; border-radius: 50%; border: none;
+  font-size: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 10px; transition: all .12s;
+}
+.inc-btn:active { transform: scale(.88); }
+.inc-ok { background: var(--green); box-shadow: 0 6px 24px rgba(24,181,96,.4); }
+.inc-no { background: var(--red); box-shadow: 0 6px 24px rgba(232,49,42,.35); }
+.inc-lbl { font-size: 14px; font-weight: 800; color: rgba(255,255,255,.55); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%);
+  background: rgba(24,29,39,.94);
+  color: #fff; border-radius: var(--r-full);
+  padding: 12px 24px; font-size: 14px; font-weight: 700;
+  opacity: 0; transition: opacity .25s; pointer-events: none;
+  z-index: 400; white-space: nowrap;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0,0,0,.2);
+}
+.toast.show { opacity: 1; }
+
+/* ── EMPTY ── */
+.empty {
+  text-align: center; padding: 50px 20px;
+}
+.empty-ico { font-size: 52px; margin-bottom: 14px; opacity: .35; }
+.empty-txt { font-size: 16px; color: var(--text3); font-weight: 600; line-height: 1.5; }
+
+.demo-btn {
+  display: block; margin: 14px auto 0;
+  background: var(--green-light); color: var(--green);
+  border: 1.5px solid rgba(24,181,96,.3); border-radius: var(--r-full);
+  padding: 13px 26px; font-size: 15px; font-weight: 800;
+  font-family: inherit; cursor: pointer; transition: all .12s;
+}
+.demo-btn:active { transform: scale(.96); }
+
+.chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--blue-light); color: var(--blue);
+  border-radius: var(--r-full); padding: 3px 10px;
+  font-size: 11px; font-weight: 800; margin-left: 6px;
+}
+</style>
+</head>
+<body>
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <div class="status-left">
+    <div class="status-time" id="clock">00:00</div>
+    <div class="status-date" id="cdate"></div>
+  </div>
+  <div class="status-icons">
+    <span>📶</span><span>🔋</span>
+  </div>
+</div>
+
+<!-- SCREENS -->
+
+<!-- 1. 연락처 -->
+<div class="screen active" id="screen-home">
+  <div class="page-header">
+    <h1>📱 쉬운 전화</h1>
+    <p>자주 쓰는 번호를 한 번에</p>
+  </div>
+  <div class="section-wrap">
+    <div class="section-title">⭐ 즐겨찾기</div>
+    <div class="contact-grid" id="fav-grid"></div>
+  </div>
+  <div class="section-wrap" style="margin-top:20px">
+    <div class="section-title">👥 전체 연락처</div>
+    <div class="contact-grid" id="all-grid"></div>
+  </div>
+</div>
+
+<!-- 2. 번호판 -->
+<div class="screen" id="screen-dial">
+  <div class="page-header">
+    <h1>🔢 번호 입력</h1>
+    <p>직접 번호를 눌러 전화하세요</p>
+  </div>
+  <div class="dialpad-section">
+    <div class="dial-display">
+      <div class="dial-num ph" id="dial-display">전화번호를 입력하세요</div>
+      <button class="dial-del-btn" onclick="dialDel()">⌫</button>
+    </div>
+    <div class="pad-wrap">
+      <div class="pad-grid" id="pad-grid"></div>
+      <div class="pad-row3">
+        <div></div>
+        <button class="pad-call-big" onclick="callFromDial()">📞</button>
+        <div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. 최근 통화 -->
+<div class="screen" id="screen-recent">
+  <div class="page-header">
+    <h1>🕐 최근 통화</h1>
+    <p>최근에 통화한 목록이에요</p>
+  </div>
+  <div class="recent-list" id="recent-list"></div>
+</div>
+
+<!-- 4. 영상통화 -->
+<div class="screen" id="screen-video">
+  <div class="page-header">
+    <h1>📹 영상통화</h1>
+    <p>얼굴 보며 통화해요</p>
+  </div>
+  <div class="video-section">
+    <div class="video-header-card">
+      <div class="video-hicon">📹</div>
+      <div>
+        <div class="video-htitle">갤럭시 영상통화</div>
+        <div class="video-hsub">가족·친구와 얼굴 보며 대화하세요</div>
+      </div>
+    </div>
+    <div class="section-title" style="margin-bottom:12px">최근 영상통화 <span class="chip" id="ft-count">0건</span></div>
+    <div id="ft-list"></div>
+  </div>
+</div>
+
+<!-- 5. 연락처 추가 -->
+<div class="screen" id="screen-add">
+  <div class="page-header">
+    <h1>➕ 연락처 추가</h1>
+    <p>새 번호를 저장해요</p>
+  </div>
+  <div class="add-section">
+    <div class="add-card">
+      <div class="form-group">
+        <label class="form-lbl">이름</label>
+        <input class="form-inp" id="inp-name" type="text" placeholder="예) 아들, 딸, 병원" maxlength="12">
+      </div>
+      <div class="form-group">
+        <label class="form-lbl">전화번호</label>
+        <input class="form-inp" id="inp-phone" type="tel" placeholder="010-0000-0000">
+      </div>
+      <div class="form-group">
+        <label class="form-lbl">관계</label>
+        <input class="form-inp" id="inp-rel" type="text" placeholder="예) 아들, 딸, 동네 병원" maxlength="12">
+      </div>
+      <div class="form-group">
+        <label class="form-lbl">아이콘</label>
+        <div class="emoji-pick" id="emoji-pick"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-lbl">색상</label>
+        <div class="color-pick" id="color-pick"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-lbl">유형</label>
+        <div class="fav-pick">
+          <button class="fp on" id="fp-yes" onclick="setFav(true)">
+            <span class="fp-icon">⭐</span>
+            <span class="fp-lbl">즐겨찾기</span>
+          </button>
+          <button class="fp" id="fp-no" onclick="setFav(false)">
+            <span class="fp-icon">👤</span>
+            <span class="fp-lbl">일반</span>
+          </button>
+        </div>
+      </div>
+      <button class="save-btn" onclick="saveContact()">✅ 저장하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="nav-btn active" id="nav-home" onclick="goScreen('home',this)">
+    <div class="nav-icon">👥</div>
+    <div class="nav-label">연락처</div>
+  </button>
+  <button class="nav-btn" id="nav-dial" onclick="goScreen('dial',this)">
+    <div class="nav-icon">🔢</div>
+    <div class="nav-label">번호판</div>
+  </button>
+  <button class="nav-btn" id="nav-recent" onclick="goScreen('recent',this)">
+    <div class="nav-icon">🕐</div>
+    <div class="nav-label">최근</div>
+  </button>
+  <button class="nav-btn" id="nav-video" onclick="goScreen('video',this)">
+    <div class="nav-icon">📹</div>
+    <div class="nav-label">영상통화</div>
+  </button>
+  <button class="nav-btn" id="nav-add" onclick="goScreen('add',this)">
+    <div class="nav-icon">➕</div>
+    <div class="nav-label">추가</div>
+  </button>
+</div>
+
+<!-- CALLING OVERLAY -->
+<div class="call-ov" id="call-ov">
+  <div class="call-pulse-wrap">
+    <div class="call-pulse"></div>
+    <div class="call-pulse"></div>
+    <div class="call-pulse"></div>
+    <div class="call-av" id="ca-av"></div>
+  </div>
+  <div class="call-name" id="ca-name">—</div>
+  <div class="call-status" id="ca-status">연결 중...</div>
+  <div class="call-timer" id="ca-timer"></div>
+  <div class="call-ctrl">
+    <div class="ctrl" onclick="toggleSpk()">
+      <button class="ctrl-c side" id="btn-spk">🔊</button>
+      <span class="ctrl-lbl">스피커</span>
+    </div>
+    <div class="ctrl" onclick="endCall()">
+      <button class="ctrl-c end">📵</button>
+      <span class="ctrl-lbl">끊기</span>
+    </div>
+    <div class="ctrl" onclick="toggleMute()">
+      <button class="ctrl-c side" id="btn-mute">🎤</button>
+      <span class="ctrl-lbl">음소거</span>
+    </div>
+  </div>
+</div>
+
+<!-- INCOMING OVERLAY -->
+<div class="inc-ov" id="inc-ov">
+  <div class="inc-badge">📲 전화가 왔어요!</div>
+  <div class="inc-av-wrap">
+    <div class="inc-ring"></div>
+    <div class="inc-ring"></div>
+    <div class="inc-face" id="inc-face"></div>
+  </div>
+  <div class="inc-name" id="inc-name">—</div>
+  <div class="inc-sub" id="inc-sub">—</div>
+  <div class="inc-btns">
+    <div class="inc-btn-w">
+      <button class="inc-btn inc-no" onclick="rejectCall()">📵</button>
+      <div class="inc-lbl">거절</div>
+    </div>
+    <div class="inc-btn-w">
+      <button class="inc-btn inc-ok" onclick="acceptCall()">📞</button>
+      <div class="inc-lbl">받기</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────
+const EMOJIS = ['👩','👨','👧','👦','👵','👴','🧑','👶','🏥','🚑','🏪','🍱','🌸','❤️','🌿','🎋'];
+const COLORS = ['#3B82F6','#10B981','#EF4444','#F59E0B','#8B5CF6','#EC4899','#06B6D4','#84CC16','#F97316','#6366F1','#14B8A6','#D97706'];
+
+let contacts = JSON.parse(localStorage.getItem('gx-contacts') || 'null') || [
+  {id:1, name:'아들', phone:'010-1234-5678', rel:'아들', emoji:'👨', color:'#3B82F6', fav:true},
+  {id:2, name:'딸', phone:'010-9876-5432', rel:'딸', emoji:'👩', color:'#EC4899', fav:true},
+  {id:3, name:'병원', phone:'02-1234-5678', rel:'동네 병원', emoji:'🏥', color:'#10B981', fav:true},
+  {id:4, name:'남편', phone:'010-1111-2222', rel:'남편', emoji:'👴', color:'#F59E0B', fav:true},
+  {id:5, name:'이웃', phone:'010-5555-6666', rel:'옆집', emoji:'🏠', color:'#8B5CF6', fav:false},
+];
+let recents = JSON.parse(localStorage.getItem('gx-recents') || '[]');
+let ftList   = JSON.parse(localStorage.getItem('gx-ft') || '[]');
+let nextId = Math.max(0, ...contacts.map(c=>c.id)) + 1;
+
+let selEmoji = EMOJIS[0], selColor = COLORS[0], isFav = true;
+let dialStr = '', callTimer = null, callSec = 0, spkOn = false, muteOn = false;
+
+const save = () => {
+  localStorage.setItem('gx-contacts', JSON.stringify(contacts));
+  localStorage.setItem('gx-recents', JSON.stringify(recents));
+  localStorage.setItem('gx-ft', JSON.stringify(ftList));
+};
+
+// ── CLOCK ──────────────────────────────────────────────
+const DAYS = ['일','월','화','수','목','금','토'];
+function tick() {
+  const n = new Date();
+  const h = String(n.getHours()).padStart(2,'0'), m = String(n.getMinutes()).padStart(2,'0');
+  document.getElementById('clock').textContent = `${h}:${m}`;
+  document.getElementById('cdate').textContent = `${n.getMonth()+1}월 ${n.getDate()}일 (${DAYS[n.getDay()]})`;
+}
+tick(); setInterval(tick, 15000);
+
+// ── SCREEN ─────────────────────────────────────────────
+function goScreen(name, el) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  if (name === 'recent') renderRecent();
+  if (name === 'video') renderVideo();
+}
+
+// ── RENDER CONTACTS ────────────────────────────────────
+function hexToLight(hex) {
+  return hex + '22';
+}
+function mkCard(c) {
+  return `
+  <div class="c-card ${c.fav ? 'is-fav' : ''}" style="--accent:${c.color}">
+    ${c.fav ? '<div class="fav-star">⭐</div>' : ''}
+    <div class="c-avatar" style="background:${hexToLight(c.color)}">
+      <div class="c-avatar-ring" style="border-color:${c.color}"></div>
+      <span>${c.emoji}</span>
+    </div>
+    <div class="c-name">${c.name}</div>
+    <div class="c-rel">${c.rel}</div>
+    <div class="c-phone">${c.phone}</div>
+    <div class="c-btns">
+      <button class="c-btn-call" onclick="event.stopPropagation();doCall(${c.id})">📞 전화</button>
+      <button class="c-btn-video" onclick="event.stopPropagation();doVideo(${c.id})">📹</button>
+    </div>
+  </div>`;
+}
+function renderContacts() {
+  const favs = contacts.filter(c => c.fav);
+  const rest = contacts.filter(c => !c.fav);
+  document.getElementById('fav-grid').innerHTML = favs.length
+    ? favs.map(mkCard).join('')
+    : '<div style="color:var(--text3);padding:10px;font-size:15px">즐겨찾기 없음</div>';
+  document.getElementById('all-grid').innerHTML = rest.length
+    ? rest.map(mkCard).join('')
+    : '<div style="color:var(--text3);padding:10px;font-size:15px">일반 연락처 없음</div>';
+}
+
+// ── CALL ───────────────────────────────────────────────
+function doCall(id) {
+  const c = contacts.find(x => x.id === id);
+  if (!c) return;
+  window.location.href = `tel:${c.phone.replace(/-/g,'')}`;
+  openCallOv(c);
+  logRecent(c, 'out');
+}
+
+function openCallOv(c) {
+  document.getElementById('ca-av').textContent = c.emoji;
+  document.getElementById('ca-av').style.background = hexToLight(c.color || '#3B82F6');
+  document.getElementById('ca-name').textContent = c.name;
+  document.getElementById('ca-status').textContent = (c.rel || '') + ' · 연결 중...';
+  document.getElementById('ca-timer').textContent = '';
+  spkOn = false; muteOn = false; callSec = 0;
+  updateCtrl();
+  document.getElementById('call-ov').classList.add('show');
+  setTimeout(() => {
+    if (!document.getElementById('call-ov').classList.contains('show')) return;
+    document.getElementById('ca-status').textContent = '통화 중';
+    callTimer = setInterval(() => {
+      callSec++;
+      const mm = String(Math.floor(callSec/60)).padStart(2,'0');
+      const ss = String(callSec%60).padStart(2,'0');
+      document.getElementById('ca-timer').textContent = `${mm}:${ss}`;
+    }, 1000);
+  }, 2000);
+}
+
+function endCall() {
+  clearInterval(callTimer);
+  document.getElementById('call-ov').classList.remove('show');
+}
+function toggleSpk() {
+  spkOn = !spkOn; updateCtrl();
+  showToast(spkOn ? '🔊 스피커 켜짐' : '🔇 스피커 꺼짐');
+}
+function toggleMute() {
+  muteOn = !muteOn; updateCtrl();
+  showToast(muteOn ? '🔇 음소거 켜짐' : '🎤 음소거 꺼짐');
+}
+function updateCtrl() {
+  document.getElementById('btn-spk').className = `ctrl-c side ${spkOn ? 'on' : ''}`;
+  document.getElementById('btn-mute').textContent = muteOn ? '🔇' : '🎤';
+  document.getElementById('btn-mute').className = `ctrl-c side ${muteOn ? 'on' : ''}`;
+}
+
+// ── VIDEO ──────────────────────────────────────────────
+function doVideo(id) {
+  const c = contacts.find(x => x.id === id);
+  if (!c) return;
+  ftList.unshift({ id:c.id, name:c.name, emoji:c.emoji, color:c.color, rel:c.rel, time:Date.now() });
+  if (ftList.length > 20) ftList.pop();
+  save();
+  showToast(`📹 ${c.name}에게 영상통화 중...`);
+  setTimeout(() => {
+    // Galaxy video call intent
+    window.location.href = `tel:${c.phone.replace(/-/g,'')}`;
+  }, 600);
+}
+
+function renderVideo() {
+  document.getElementById('ft-count').textContent = ftList.length + '건';
+  const el = document.getElementById('ft-list');
+  if (!ftList.length) {
+    el.innerHTML = `
+      <div class="empty">
+        <div class="empty-ico">📹</div>
+        <div class="empty-txt">아직 영상통화가 없어요<br>연락처에서 📹 버튼을 눌러보세요</div>
+      </div>`;
+    return;
+  }
+  const fmt = ts => {
+    const d = Date.now() - ts;
+    if (d < 60000) return '방금';
+    if (d < 3600000) return Math.floor(d/60000) + '분 전';
+    if (d < 86400000) return Math.floor(d/3600000) + '시간 전';
+    return Math.floor(d/86400000) + '일 전';
+  };
+  el.innerHTML = ftList.map(r => `
+    <div class="ft-item" onclick="doVideoById(${r.id})">
+      <div class="ft-avatar" style="background:${hexToLight(r.color||'#3B82F6')}">${r.emoji}</div>
+      <div class="ft-info">
+        <div class="ft-name">${r.name}</div>
+        <div class="ft-meta">📹 영상통화 · ${fmt(r.time)}</div>
+      </div>
+      <button class="ft-call-btn">📹 다시 걸기</button>
+    </div>`).join('');
+}
+function doVideoById(id) {
+  const c = contacts.find(x => x.id === id);
+  if (c) doVideo(c.id);
+}
+
+// ── INCOMING ───────────────────────────────────────────
+function simIncoming() {
+  const c = contacts[Math.floor(Math.random() * contacts.length)];
+  document.getElementById('inc-face').textContent = c.emoji;
+  document.getElementById('inc-face').style.background = hexToLight(c.color);
+  document.getElementById('inc-name').textContent = c.name;
+  document.getElementById('inc-sub').textContent = c.rel + ' · ' + c.phone;
+  document.getElementById('inc-ov').classList.add('show');
+  logRecent(c, 'in');
+}
+function acceptCall() {
+  const emoji = document.getElementById('inc-face').textContent;
+  const bg = document.getElementById('inc-face').style.background;
+  const name = document.getElementById('inc-name').textContent;
+  const rel = document.getElementById('inc-sub').textContent;
+  document.getElementById('inc-ov').classList.remove('show');
+  openCallOv({ emoji, color: '#3B82F6', name, rel });
+}
+function rejectCall() {
+  document.getElementById('inc-ov').classList.remove('show');
+  showToast('전화를 거절했어요');
+}
+
+// ── RECENT ─────────────────────────────────────────────
+function logRecent(c, dir) {
+  recents.unshift({ id:c.id, name:c.name, emoji:c.emoji, color:c.color||'#3B82F6', rel:c.rel, dir, time:Date.now() });
+  if (recents.length > 40) recents.pop();
+  save();
+}
+function renderRecent() {
+  const el = document.getElementById('recent-list');
+  const fmt = ts => {
+    const d = Date.now() - ts;
+    if (d < 60000) return '방금';
+    if (d < 3600000) return Math.floor(d/60000) + '분 전';
+    if (d < 86400000) return Math.floor(d/3600000) + '시간 전';
+    return Math.floor(d/86400000) + '일 전';
+  };
+  if (!recents.length) {
+    el.innerHTML = `
+      <div class="empty">
+        <div class="empty-ico">📭</div>
+        <div class="empty-txt">최근 통화가 없어요</div>
+      </div>
+      <button class="demo-btn" onclick="simIncoming()">📲 전화 받기 테스트</button>`;
+    return;
+  }
+  el.innerHTML = recents.map(r => `
+    <div class="r-item">
+      <div class="r-avatar" style="background:${hexToLight(r.color)}">${r.emoji}</div>
+      <div class="r-info">
+        <div class="r-name">${r.name}</div>
+        <div class="r-meta">${r.dir==='out'?'📞 발신':'📲 수신'} · ${r.rel} · ${fmt(r.time)}</div>
+      </div>
+      <button class="r-btn" onclick="callById(${r.id})">📞</button>
+    </div>`).join('') +
+    `<button class="demo-btn" onclick="simIncoming()">📲 전화 받기 테스트</button>`;
+}
+function callById(id) {
+  const c = contacts.find(x => x.id === id);
+  if (c) doCall(c.id);
+}
+
+// ── DIALPAD ────────────────────────────────────────────
+const PAD = [
+  ['1',''],['2','ABC'],['3','DEF'],
+  ['4','GHI'],['5','JKL'],['6','MNO'],
+  ['7','PQRS'],['8','TUV'],['9','WXYZ'],
+  ['*',''],['0','+'],['#','']
+];
+document.getElementById('pad-grid').innerHTML = PAD.map(([d,l]) =>
+  `<button class="pad-key" onclick="dialPress('${d}')">
+    <span class="pad-d">${d}</span>
+    <span class="pad-l">${l}</span>
+  </button>`).join('');
+
+function dialPress(d) {
+  dialStr += d;
+  const el = document.getElementById('dial-display');
+  el.textContent = dialStr;
+  el.classList.remove('ph');
+}
+function dialDel() {
+  dialStr = dialStr.slice(0, -1);
+  const el = document.getElementById('dial-display');
+  if (dialStr) { el.textContent = dialStr; el.classList.remove('ph'); }
+  else { el.textContent = '전화번호를 입력하세요'; el.classList.add('ph'); }
+}
+function callFromDial() {
+  if (!dialStr) { showToast('번호를 입력해주세요'); return; }
+  window.location.href = `tel:${dialStr}`;
+  openCallOv({ emoji:'📞', color:'#3B82F6', name:dialStr, rel:'직접 입력' });
+}
+
+// ── ADD ────────────────────────────────────────────────
+function initForm() {
+  document.getElementById('emoji-pick').innerHTML = EMOJIS.map((e,i) =>
+    `<div class="ep ${i===0?'on':''}" onclick="pickE(this,'${e}')">${e}</div>`).join('');
+  document.getElementById('color-pick').innerHTML = COLORS.map((c,i) =>
+    `<div class="cp ${i===0?'on':''}" style="background:${c}" onclick="pickC(this,'${c}')"></div>`).join('');
+}
+function pickE(el, e) {
+  document.querySelectorAll('.ep').forEach(x => x.classList.remove('on'));
+  el.classList.add('on'); selEmoji = e;
+}
+function pickC(el, c) {
+  document.querySelectorAll('.cp').forEach(x => x.classList.remove('on'));
+  el.classList.add('on'); selColor = c;
+}
+function setFav(v) {
+  isFav = v;
+  document.getElementById('fp-yes').className = `fp ${v ? 'on' : ''}`;
+  document.getElementById('fp-no').className  = `fp ${!v ? 'on' : ''}`;
+}
+function saveContact() {
+  const name  = document.getElementById('inp-name').value.trim();
+  const phone = document.getElementById('inp-phone').value.trim();
+  const rel   = document.getElementById('inp-rel').value.trim();
+  if (!name) { showToast('⚠️ 이름을 입력해주세요'); return; }
+  if (!phone) { showToast('⚠️ 전화번호를 입력해주세요'); return; }
+  contacts.push({ id:nextId++, name, phone, rel:rel||name, emoji:selEmoji, color:selColor, fav:isFav });
+  save(); renderContacts();
+  document.getElementById('inp-name').value = '';
+  document.getElementById('inp-phone').value = '';
+  document.getElementById('inp-rel').value = '';
+  showToast('✅ 연락처가 저장됐어요!');
+  goScreen('home', document.getElementById('nav-home'));
+}
+
+// ── TOAST ──────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ── INIT ───────────────────────────────────────────────
+initForm();
+renderContacts();
+</script>
+</body>
+</html>
